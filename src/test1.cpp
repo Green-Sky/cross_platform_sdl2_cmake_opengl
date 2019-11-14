@@ -67,11 +67,15 @@ void main_loop_iteration(void) {
 }
 
 int main(int, char**) {
+	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "------------ starting test1 ----------\n");
+
 	// setup sdl and gl
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER)) {
-		std::cerr << "error initializing sdl\n";
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "error initializing sdl: %s", SDL_GetError());
 		return 1;
 	}
+
+	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "setting atributes\n");
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
 
@@ -85,15 +89,17 @@ int main(int, char**) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #endif
 
-	g_win = SDL_CreateWindow("test1", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_OPENGL);
+	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "creating window\n");
+	g_win = SDL_CreateWindow("test1", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_OPENGL /*| SDL_WINDOW_FULLSCREEN_DESKTOP*/);
 	if (!g_win) {
-		std::cerr << "error opening window\n";
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "error opening window: %s", SDL_GetError());
 		return 1;
 	}
 
+	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "creating gl context\n");
 	g_gl_context = SDL_GL_CreateContext(g_win);
 	if (!g_gl_context) {
-		std::cerr << "error creating webgl context\n";
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "error creating opengl context: %s", SDL_GetError());
 		return 1;
 	}
 
@@ -105,12 +111,13 @@ int main(int, char**) {
 	}
 #endif
 
+	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "making gl context current\n");
 	if (SDL_GL_MakeCurrent(g_win, g_gl_context)) {
-		std::cerr << "error making gl context current\n";
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "error making gl context current: %s", SDL_GetError());
 		return 1;
 	}
 
-	std::cout << "gl version: " << glGetString(GL_VERSION) << "\n";
+	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "gl version: %s\n", glGetString(GL_VERSION));
 
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(main_loop_iteration, 0, true);
