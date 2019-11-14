@@ -2,16 +2,15 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 project(sdl_test C CXX)
 
-if(ANDROID)
-	add_library(test1 SHARED)
-else()
-	add_executable(test1)
-endif()
-
-target_sources(test1 PRIVATE
+set(test1_SRC
 	./test1.cpp
 )
 
+if(ANDROID)
+	add_library(test1 SHARED ${test1_SRC})
+else()
+	add_executable(test1 ${test1_SRC})
+endif()
 
 target_include_directories(test1 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
